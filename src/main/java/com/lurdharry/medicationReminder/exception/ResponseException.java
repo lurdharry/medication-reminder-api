@@ -10,9 +10,11 @@ public class ResponseException extends RuntimeException {
 
     private final HttpStatus httpStatus;
     private final String message;
+    private  final Integer code;
 
     public ResponseException( String message, HttpStatus httpStatus) {
         this.httpStatus = httpStatus;
         this.message = message;
+        this.code = httpStatus.value();
     }
 }
