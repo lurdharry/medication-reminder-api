@@ -3,9 +3,10 @@ package com.lurdharry.medicationReminder.user;
 import com.lurdharry.medicationReminder.user.dto.UserRequest;
 import com.lurdharry.medicationReminder.user.dto.UserResponse;
 import com.lurdharry.medicationReminder.user.model.User;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
-@Service
+
+@Component
 public class UserMapper {
 
     public User toUser(UserRequest request) {

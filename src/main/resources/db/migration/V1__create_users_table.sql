@@ -6,6 +6,6 @@ CREATE TABLE users(
       email  VARCHAR(225) UNIQUE NOT NULL,
       date_of_birth  DATE,
       password_hash VARCHAR(225) NOT NULL,
-      created_at  TIMESTAMP NOT NULL DEFAULT now(),
-      updated_at  TIMESTAMP NOT NULL DEFAULT now()
+      created_at  TIMESTAMP NOT NULL,
+      updated_at  TIMESTAMP
 );
