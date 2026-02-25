@@ -49,9 +49,9 @@ public class JwtUtility {
         return getPayload(token).getSubject();
     }
 
-    public boolean validateToken(String token) {
-        var expiry  = getPayload(token).getExpiration();
-        return !expiry.before(new Date());
+    public boolean isTokenExpired(String token) {
+        var expiryDate  = getPayload(token).getExpiration();
+        return expiryDate.before(new Date());
     }
 
 
