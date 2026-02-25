@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
     private final UserService userService;
 
-    @PostMapping("/auth/createUser")
+    @PostMapping("/createUser")
     public ResponseEntity<ResponseDTO> createUser(
             @RequestBody @Valid UserRequest request
     ) {
