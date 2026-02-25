@@ -3,6 +3,7 @@ package com.lurdharry.medicationReminder.auth;
 import com.lurdharry.medicationReminder.auth.dto.LoginRequest;
 import com.lurdharry.medicationReminder.auth.dto.LoginResponse;
 import com.lurdharry.medicationReminder.exception.dto.ResponseDTO;
+import com.lurdharry.medicationReminder.user.dto.UserRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -29,6 +30,19 @@ public class AuthController {
         ResponseDTO res = new ResponseDTO(HttpStatus.OK.value(), "Login Successful", response);
 
         return new ResponseEntity<>(res, HttpStatus.OK);
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<ResponseDTO> createUser(
+            @RequestBody @Valid UserRequest request
+    ) {
+
+        var user = authService.createUser(request);
+
+        ResponseDTO res = new ResponseDTO(HttpStatus.CREATED.value(), "User Created", user);
+
+        return  new ResponseEntity<>(res, HttpStatus.CREATED);
+
     }
 
 }

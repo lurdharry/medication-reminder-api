@@ -4,7 +4,10 @@ import com.lurdharry.medicationReminder.auth.dto.LoginRequest;
 import com.lurdharry.medicationReminder.auth.dto.LoginResponse;
 import com.lurdharry.medicationReminder.config.JwtUtility;
 import com.lurdharry.medicationReminder.exception.ResponseException;
+import com.lurdharry.medicationReminder.user.UserMapper;
 import com.lurdharry.medicationReminder.user.UserRepository;
+import com.lurdharry.medicationReminder.user.dto.UserRequest;
+import com.lurdharry.medicationReminder.user.dto.UserResponse;
 import com.lurdharry.medicationReminder.user.model.User;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +21,7 @@ public class AuthService {
     private  final UserRepository userRepository;
     private final PasswordEncoder encoder;
     private  final JwtUtility jwtUtility;
+    private final UserMapper mapper;
 
     public LoginResponse login(@Valid LoginRequest request) {
 
@@ -37,4 +41,21 @@ public class AuthService {
                 .accessToken(accessToken)
                 .build();
     };
+
+    public UserResponse createUser(UserRequest userRequest){
+
+        var existingUser = userRepository.findByEmail(userRequest.email());
+
+        if (existingUser.isPresent()) {
+            throw new ResponseException("Email already exists", HttpStatus.CONFLICT);
+        }
+
+        String passwordHash = encoder.encode(userRequest.password());
+        var user =  mapper.toUser(userRequest);
+        user.setPasswordHash(passwordHash);
+
+        userRepository.save(user);
+
+        return mapper.toUserResponse(user);
+    }
 }
