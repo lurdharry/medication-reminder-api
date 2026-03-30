@@ -2,9 +2,9 @@ spring:
   application:
     name: medicationReminder
   datasource:
-    url: jdbc:postgresql://localhost:5432/medication_reminder_db
-    username: postgres
-    password: lurdharry
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
@@ -19,11 +19,8 @@ spring:
     password: ${spring.datasource.password}
 
 jwt:
-  secret: sdmjs2637kfh_9wjkfk%6fdkllkd38309o@*E^2ek4ih8@sdn9883bdjsgu6723bhjguhj+w0
+  secret: ${JWT_SECRET}
   expiryTime: 86400000
-
 
 server:
   port: 8080
-
-

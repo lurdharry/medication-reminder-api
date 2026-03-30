@@ -1,0 +1,19 @@
+services:
+  db:
+    image: postgres
+    container_name: medication-reminder-db
+    environment:
+      POSTGRES_DB: medication_reminder_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: lurdharry
+    ports:
+      - "5432:5432"
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
