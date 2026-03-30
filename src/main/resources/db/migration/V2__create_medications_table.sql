@@ -1,0 +1,20 @@
+CREATE TABLE medications(
+    id  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name    VARCHAR(225) NOT NULL,
+    dosage  VARCHAR(225)  NOT NULL,
+    unit VARCHAR(10) NOT NULL CHECK (unit in ('mg','ml','pills')),
+    purpose  VARCHAR(225)  NOT NULL,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    instruction  VARCHAR(225),
+    pharmacy_info VARCHAR(225),
+    image_url VARCHAR(225),
+    color VARCHAR(225),
+    shape VARCHAR(225),
+    active BOOLEAN,
+    start_date DATE,
+    end_date DATE,
+    refill_date DATE,
+    prescribed_by VARCHAR(225),
+    created_at  TIMESTAMP NOT NULL,
+    updated_at  TIMESTAMP
+);
