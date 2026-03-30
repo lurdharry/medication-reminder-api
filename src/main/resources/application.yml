@@ -1,0 +1,29 @@
+spring:
+  application:
+    name: medicationReminder
+  datasource:
+    url: jdbc:postgresql://localhost:5432/medication_reminder_db
+    username: postgres
+    password: lurdharry
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    database: POSTGRESQL
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+  flyway:
+    validate-on-migrate: false
+    enabled: true
+    baseline-description: "init"
+    user: ${spring.datasource.username}
+    password: ${spring.datasource.password}
+
+jwt:
+  secret: sdmjs2637kfh_9wjkfk%6fdkllkd38309o@*E^2ek4ih8@sdn9883bdjsgu6723bhjguhj+w0
+  expiryTime: 86400000
+
+
+server:
+  port: 8080
+
+
