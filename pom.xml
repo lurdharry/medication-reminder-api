@@ -121,6 +121,29 @@
 			<version>3.0.1</version>
 			<scope>compile</scope>
 		</dependency>
+
+		<!-- Source: https://mvnrepository.com/artifact/com.openai/openai-java -->
+		<dependency>
+			<groupId>com.openai</groupId>
+			<artifactId>openai-java</artifactId>
+			<version>4.30.0</version>
+		</dependency>
+
+		<!-- Source: https://mvnrepository.com/artifact/com.anthropic/anthropic-java -->
+		<dependency>
+			<groupId>com.anthropic</groupId>
+			<artifactId>anthropic-java</artifactId>
+			<version>2.18.0</version>
+			<scope>compile</scope>
+		</dependency>
+
+		<!-- Source: https://mvnrepository.com/artifact/com.google.cloud/google-cloud-vertexai -->
+		<dependency>
+			<groupId>com.google.cloud</groupId>
+			<artifactId>google-cloud-vertexai</artifactId>
+			<version>1.49.0</version>
+			<scope>compile</scope>
+		</dependency>
 	</dependencies>
 
 	<build>
