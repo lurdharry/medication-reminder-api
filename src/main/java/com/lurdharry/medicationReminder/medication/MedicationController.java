@@ -3,6 +3,7 @@ package com.lurdharry.medicationReminder.medication;
 
 import com.lurdharry.medicationReminder.exception.dto.ResponseDTO;
 import com.lurdharry.medicationReminder.medication.dto.MedicationRequest;
+import com.lurdharry.medicationReminder.medication.dto.MedicationUpdateRequest;
 import com.lurdharry.medicationReminder.user.model.User;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -53,7 +54,7 @@ public class MedicationController {
     @PutMapping("/{id}")
     public ResponseEntity<ResponseDTO> updateMedication(
             @PathVariable UUID id,
-            @RequestBody @Valid MedicationRequest request,
+            @RequestBody @Valid MedicationUpdateRequest request,
             @AuthenticationPrincipal User user
     ){
         var res = service.updateMedication(id, request, user);

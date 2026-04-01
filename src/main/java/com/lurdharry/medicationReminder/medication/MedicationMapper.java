@@ -3,6 +3,7 @@ package com.lurdharry.medicationReminder.medication;
 
 import com.lurdharry.medicationReminder.medication.dto.MedicationRequest;
 import com.lurdharry.medicationReminder.medication.dto.MedicationResponse;
+import com.lurdharry.medicationReminder.medication.dto.MedicationUpdateRequest;
 import com.lurdharry.medicationReminder.medication.model.Medication;
 import org.springframework.stereotype.Component;
 
@@ -50,7 +51,7 @@ public class MedicationMapper {
                 .build();
     }
 
-  public void  updateMedicationFromRequest(MedicationRequest request, Medication medication) {
+  public void  updateMedicationFromRequest(MedicationUpdateRequest request, Medication medication) {
       if (request.name() != null) medication.setName(request.name());
       if (request.dosage() != null) medication.setDosage(request.dosage());
       if (request.unit() != null) medication.setUnit(request.unit());

@@ -4,6 +4,7 @@ package com.lurdharry.medicationReminder.medication;
 import com.lurdharry.medicationReminder.exception.ResponseException;
 import com.lurdharry.medicationReminder.medication.dto.MedicationRequest;
 import com.lurdharry.medicationReminder.medication.dto.MedicationResponse;
+import com.lurdharry.medicationReminder.medication.dto.MedicationUpdateRequest;
 import com.lurdharry.medicationReminder.medication.model.Medication;
 import com.lurdharry.medicationReminder.user.model.User;
 import jakarta.validation.Valid;
@@ -45,7 +46,7 @@ public class MedicationService {
         return mapper.toMedicationResponse(medication);
     }
 
-    public MedicationResponse updateMedication(UUID id, @Valid MedicationRequest request, User user) {
+    public MedicationResponse updateMedication(UUID id, @Valid MedicationUpdateRequest request, User user) {
         var medication = findMedicationByIdAndUser(id, user);
         mapper.updateMedicationFromRequest(request, medication);
         repository.save(medication);
@@ -57,7 +58,7 @@ public class MedicationService {
         repository.delete(medication);
     }
 
-    private Medication findMedicationByIdAndUser(UUID id, User user) {
+    public Medication findMedicationByIdAndUser(UUID id, User user) {
         var medication = repository.findById(id).orElseThrow(
                 ()-> new ResponseException("Unable to find medication with "+ id, HttpStatus.NOT_FOUND)
         );
