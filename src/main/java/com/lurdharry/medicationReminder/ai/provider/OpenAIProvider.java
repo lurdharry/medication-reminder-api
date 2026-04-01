@@ -1,10 +1,13 @@
 package com.lurdharry.medicationReminder.ai.provider;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.lurdharry.medicationReminder.ai.model.ConversationMessage;
 import com.openai.client.OpenAIClient;
 import com.openai.client.okhttp.OpenAIOkHttpClient;
 import com.openai.models.chat.completions.*;
 import com.openai.models.chat.completions.ChatCompletionSystemMessageParam;
+
+import java.util.List;
 
 public class OpenAIProvider implements LLMProvider {
 
@@ -19,20 +22,28 @@ public class OpenAIProvider implements LLMProvider {
         this.model = model;
     }
 
-    @Override
-    public String chat(String systemPrompt, String userMessage) {
-        ChatCompletion completion = client.chat().completions().create(
-                ChatCompletionCreateParams.builder()
-                        .model(model)
-                        .addMessage(ChatCompletionSystemMessageParam.builder()
-                                .content(systemPrompt)
-                                .build())
-                        .addMessage(ChatCompletionUserMessageParam.builder()
-                                .content(userMessage)
-                                .build())
-                        .build()
-        );
 
+    @Override
+    public String chat(String systemPrompt, List<ConversationMessage> messages) {
+        var params = ChatCompletionCreateParams.builder()
+                .model(model)
+                .addMessage(ChatCompletionSystemMessageParam.builder()
+                        .content(systemPrompt)
+                        .build());
+
+        for (var msg : messages) {
+            if ("user".equals(msg.getRole())) {
+                params.addMessage(ChatCompletionUserMessageParam.builder()
+                        .content(msg.getContent())
+                        .build());
+            } else if ("assistant".equals(msg.getRole())) {
+                params.addMessage(ChatCompletionAssistantMessageParam.builder()
+                        .content(msg.getContent())
+                        .build());
+            }
+        }
+
+        ChatCompletion completion = client.chat().completions().create(params.build());
         return completion.choices().get(0).message().content().orElse("");
     }
 

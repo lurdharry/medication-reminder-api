@@ -4,13 +4,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lurdharry.medicationReminder.ai.dto.AIIntent;
 import com.lurdharry.medicationReminder.ai.dto.ChatRequest;
 import com.lurdharry.medicationReminder.ai.dto.ChatResponse;
+import com.lurdharry.medicationReminder.ai.model.ConversationMessage;
 import com.lurdharry.medicationReminder.ai.provider.LLMProvider;
 import com.lurdharry.medicationReminder.medication.MedicationRepository;
 import com.lurdharry.medicationReminder.medication.model.Medication;
 import com.lurdharry.medicationReminder.user.model.User;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -22,29 +25,66 @@ public class AIService {
 
     private final LLMProvider llmProvider;
     private final MedicationRepository medicationRepository;
+    private final ConversationMessageRepository messageRepository;
     private final ObjectMapper objectMapper;
 
     public ChatResponse chat(ChatRequest request, User user) {
         var medications = medicationRepository.findByUserId(user.getId());
         String systemPrompt = buildSystemPrompt(user, medications);
-        String rawResponse = llmProvider.chat(systemPrompt, request.message());
 
+        // Save user message
+        messageRepository.save(ConversationMessage.builder()
+                .user(user)
+                .role("user")
+                .content(request.message())
+                .build());
+
+        // Load last 20 messages
+        var recentMessages = messageRepository.findTop20ByUserIdOrderByCreatedAtDesc(user.getId());
+        Collections.reverse(recentMessages);
+
+        // Call LLM
+        String rawResponse = llmProvider.chat(systemPrompt, recentMessages);
+
+        // Parse response
+        ChatResponse chatResponse;
         try {
             var parsed = objectMapper.readValue(rawResponse, Map.class);
-            return ChatResponse.builder()
+            chatResponse = ChatResponse.builder()
                     .message((String) parsed.get("message"))
                     .intent(AIIntent.valueOf((String) parsed.get("intent")))
                     .data((Map<String, Object>) parsed.get("data"))
                     .provider(llmProvider.getProviderName())
                     .build();
         } catch (Exception e) {
-            return ChatResponse.builder()
+            chatResponse = ChatResponse.builder()
                     .message(rawResponse)
                     .intent(AIIntent.GENERAL_QUESTION)
                     .data(null)
                     .provider(llmProvider.getProviderName())
                     .build();
         }
+
+        // Save assistant message
+        messageRepository.save(ConversationMessage.builder()
+                .user(user)
+                .role("assistant")
+                .content(chatResponse.message())
+                .intent(chatResponse.intent() != null ? chatResponse.intent().name() : null)
+                .build());
+
+        return chatResponse;
+
+
+    }
+
+    public List<ConversationMessage> getConversation(User user) {
+        return messageRepository.findByUserIdOrderByCreatedAtAsc(user.getId());
+    }
+
+    @Transactional
+    public void clearConversation(User user) {
+        messageRepository.deleteByUserId(user.getId());
     }
 
     private String buildSystemPrompt(User user, List<Medication> medications) {
