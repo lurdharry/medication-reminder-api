@@ -1,0 +1,1 @@
+ALTER TABLE dose_schedules ADD COLUMN updated_at TIMESTAMP;
