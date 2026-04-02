@@ -17,6 +17,17 @@ spring:
     baseline-description: "init"
     user: ${spring.datasource.username}
     password: ${spring.datasource.password}
+  mail:
+    host: smtp-relay.brevo.com
+    port: 587
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
 
 jwt:
   secret: ${JWT_SECRET}
@@ -30,3 +41,7 @@ ai:
 
 server:
   port: 8080
+
+alert:
+  from-email: ${ALERT_FROM_EMAIL}
+  from-name: MediRemind
