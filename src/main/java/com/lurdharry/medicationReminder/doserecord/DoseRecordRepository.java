@@ -3,6 +3,7 @@ package com.lurdharry.medicationReminder.doserecord;
 import com.lurdharry.medicationReminder.doserecord.dto.MedicationStatusCount;
 import com.lurdharry.medicationReminder.doserecord.dto.StatusCount;
 import com.lurdharry.medicationReminder.doserecord.model.DoseRecord;
+import com.lurdharry.medicationReminder.doserecord.model.DoseStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -10,6 +11,7 @@ import org.springframework.data.repository.query.Param;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 public interface DoseRecordRepository extends JpaRepository<DoseRecord, UUID> {
@@ -17,6 +19,15 @@ public interface DoseRecordRepository extends JpaRepository<DoseRecord, UUID> {
 
     List<DoseRecord> findByMedicationId(UUID medicationId);
 
+    Long countByMedicationIdAndStatusAndScheduledAtAfter(UUID medicationId, DoseStatus status, LocalDateTime after);
+
+
+    @Query("""
+    SELECT dr.doseSchedule.id FROM DoseRecord dr
+    WHERE dr.doseSchedule.id IN :scheduleIds
+    AND CAST(dr.scheduledAt AS LocalDate) = :date
+    """)
+    Set<UUID> findExistingScheduleIdsForDate(@Param("scheduleIds") List<UUID> scheduleIds, @Param("date") LocalDate date);
 
     @Query(value = """
     SELECT status, COUNT(*) as count
