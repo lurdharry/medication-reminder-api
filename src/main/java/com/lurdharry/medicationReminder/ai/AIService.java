@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lurdharry.medicationReminder.ai.dto.AIIntent;
 import com.lurdharry.medicationReminder.ai.dto.ChatRequest;
 import com.lurdharry.medicationReminder.ai.dto.ChatResponse;
+import com.lurdharry.medicationReminder.ai.dto.ConversationMessageResponse;
 import com.lurdharry.medicationReminder.ai.model.ConversationMessage;
 import com.lurdharry.medicationReminder.ai.provider.LLMProvider;
 import com.lurdharry.medicationReminder.medication.MedicationRepository;
@@ -26,6 +27,7 @@ public class AIService {
     private final LLMProvider llmProvider;
     private final MedicationRepository medicationRepository;
     private final ConversationMessageRepository messageRepository;
+    private final ConversationMessageMapper mapper;
 
     public ChatResponse chat(ChatRequest request, User user) {
         var medications = medicationRepository.findByUserId(user.getId());
@@ -76,8 +78,11 @@ public class AIService {
         return chatResponse;
     }
 
-    public List<ConversationMessage> getConversation(User user) {
-        return messageRepository.findByUserIdOrderByCreatedAtAsc(user.getId());
+    public List<ConversationMessageResponse> getConversation(User user) {
+        return messageRepository.findByUserIdOrderByCreatedAtAsc(user.getId())
+                .stream()
+                .map(mapper::toResponse)
+                .toList();
     }
 
     @Transactional
