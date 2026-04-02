@@ -3,7 +3,7 @@ package com.lurdharry.medicationReminder.ai.config;
 
 import com.lurdharry.medicationReminder.ai.provider.LLMProvider;
 import com.lurdharry.medicationReminder.ai.provider.OpenAIProvider;
-import lombok.Value;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
