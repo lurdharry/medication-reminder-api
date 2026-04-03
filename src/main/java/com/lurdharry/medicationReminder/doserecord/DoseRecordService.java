@@ -28,6 +28,21 @@ public class DoseRecordService {
         var schedule = scheduleRepository.findById(scheduleId)
                 .orElseThrow(() -> new ResponseException("Schedule not found", HttpStatus.NOT_FOUND));
 
+        var scheduledAt = LocalDateTime.of(LocalDate.now(), schedule.getTime());
+
+        // Check if record already exists for today
+        var existing = repository.findByDoseScheduleIdAndScheduledAt(scheduleId, scheduledAt);
+
+        if (existing.isPresent()) {
+            // Update existing record
+            var record = existing.get();
+            record.setStatus(request.status());
+            record.setRecordedAt(LocalDateTime.now());
+            repository.save(record);
+            return mapper.toResponse(record);
+        }
+
+        // Create new record
         var record = DoseRecord.builder()
                 .doseSchedule(schedule)
                 .medication(schedule.getMedication())
