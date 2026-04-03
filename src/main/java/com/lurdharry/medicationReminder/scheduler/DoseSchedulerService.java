@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -24,7 +25,7 @@ public class DoseSchedulerService {
     private final MedicationRepository medicationRepository;
     private final AlertService alertService;
 
-    @Scheduled(fixedRate = 60000)
+    @Scheduled(cron = "0 0 10,16,23 * * *")
     public void checkMissedDoses() {
         System.out.println("Scheduler running at: " + LocalTime.now());
         var now = LocalTime.now();
@@ -34,12 +35,10 @@ public class DoseSchedulerService {
 
         if (overdueSchedules.isEmpty()) return;
 
-        // Get all schedule IDs
         var scheduleIds = overdueSchedules.stream()
                 .map(DoseSchedule::getId)
                 .toList();
 
-        // Batch check: which ones already have records today
         var existingRecords = recordRepository
                 .findExistingScheduleIdsForDate(scheduleIds, today);
 
@@ -57,24 +56,35 @@ public class DoseSchedulerService {
                     .status(DoseStatus.missed)
                     .build());
 
-            var recentMisses = recordRepository
-                    .countByMedicationIdAndStatusAndScheduledAtAfter(
-                            medication.getId(),
-                            DoseStatus.missed,
-                            LocalDateTime.of(today.minusDays(1), LocalTime.MIN)
-                    );
+            // Check consecutive misses
+            var recentRecords = recordRepository
+                    .findTop5ByMedicationIdOrderByScheduledAtDesc(medication.getId());
 
-            if (recentMisses >= 3) {
-                System.out.println("ALERT: " + recentMisses + " misses for " + medication.getName() + " — sending email");
+            int consecutiveMisses = 0;
+            for (var record : recentRecords) {
+                if (record.getStatus() == DoseStatus.missed) {
+                    consecutiveMisses++;
+                } else {
+                    break;
+                }
+            }
+
+            if (consecutiveMisses >= 2) {
+                List<LocalTime> missedTimes = recentRecords.stream()
+                        .limit(consecutiveMisses)
+                        .map(r -> r.getScheduledAt().toLocalTime())
+                        .toList();
+
+                System.out.println("ALERT: " + consecutiveMisses + " consecutive misses for " + medication.getName());
                 alertService.notifyEmergencyContacts(
                         medication.getUser(),
                         medication.getName(),
-                        recentMisses.intValue()
+                        consecutiveMisses,
+                        missedTimes
                 );
             }
         }
     }
-
-
 }
+
 
