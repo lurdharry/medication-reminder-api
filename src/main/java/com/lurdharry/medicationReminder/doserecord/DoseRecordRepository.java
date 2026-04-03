@@ -11,6 +11,7 @@ import org.springframework.data.repository.query.Param;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -54,4 +55,6 @@ public interface DoseRecordRepository extends JpaRepository<DoseRecord, UUID> {
     ORDER BY dose_date DESC
     """, nativeQuery = true)
     List<LocalDate> findCompletedDates(@Param("userId") UUID userId);
+
+    Optional<DoseRecord> findByDoseScheduleIdAndScheduledAt(UUID doseScheduleId, LocalDateTime scheduledAt);
 }
