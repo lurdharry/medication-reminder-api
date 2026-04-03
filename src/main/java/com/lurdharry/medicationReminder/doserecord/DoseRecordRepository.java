@@ -57,4 +57,7 @@ public interface DoseRecordRepository extends JpaRepository<DoseRecord, UUID> {
     List<LocalDate> findCompletedDates(@Param("userId") UUID userId);
 
     Optional<DoseRecord> findByDoseScheduleIdAndScheduledAt(UUID doseScheduleId, LocalDateTime scheduledAt);
+
+    List<DoseRecord> findTop5ByMedicationIdOrderByScheduledAtDesc(UUID medicationId);
+
 }
