@@ -41,6 +41,8 @@ public class EmergencyContact {
 
     private Boolean notifyOnMissedDose;
 
+    private Integer missedDoseThreshold;
+
     @CreatedDate
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
