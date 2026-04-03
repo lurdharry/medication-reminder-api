@@ -1,0 +1,1 @@
+ALTER TABLE emergency_contacts ADD COLUMN missed_dose_threshold INTEGER DEFAULT 2;
