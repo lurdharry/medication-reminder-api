@@ -39,8 +39,12 @@ ai:
     api-key: ${AI_OPENAI_API_KEY:default}
     model: gpt-5-mini
 
+springdoc:
+  swagger-ui:
+    url: /v3/api-docs
 server:
-  port: 8080
+  port: ${PORT:8080}
+  forward-headers-strategy: framework
 
 alert:
   from-email: ${ALERT_FROM_EMAIL}
