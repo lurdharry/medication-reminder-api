@@ -5,8 +5,12 @@ import com.lurdharry.medicationReminder.user.model.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -15,11 +19,18 @@ public class AlertService {
     private final AlertProvider alertProvider;
     private final EmergencyContactRepository contactRepository;
 
-    public void notifyEmergencyContacts(User user, String medicationName, int missedCount) {
+    public void notifyEmergencyContacts(User user, String medicationName, int missedCount, List<LocalTime> missedTimes) {
         var contacts = contactRepository.findByUserIdAndNotifyOnMissedDoseTrue(user.getId());
+
+        String missedTimesStr = missedTimes.stream()
+                .map(t -> t.format(DateTimeFormatter.ofPattern("hh:mm a")))
+                .collect(Collectors.joining(", "));
 
         for (var contact : contacts) {
             if (contact.getEmail() == null) continue;
+
+            int threshold = contact.getMissedDoseThreshold() != null ? contact.getMissedDoseThreshold() : 2;
+            if (missedCount < threshold) continue;
 
             String subject = "MediRemind Alert: Missed Medication";
             String body = """
@@ -31,14 +42,15 @@ public class AlertService {
                         <p style="font-size: 16px; color: #333;">Dear <strong>%s</strong>,</p>
                         <p style="font-size: 16px; color: #333;">
                             We're reaching out because <strong>%s</strong> has missed 
-                            <strong style="color: #e74c3c;">%d dose(s)</strong> of 
-                            <strong>%s</strong> in the last 24 hours.
+                            <strong style="color: #e74c3c;">%d consecutive dose(s)</strong> of 
+                            <strong>%s</strong>.
                         </p>
                         <div style="background-color: #fdf2f2; border-left: 4px solid #e74c3c; padding: 15px; margin: 20px 0; border-radius: 4px;">
                             <p style="margin: 0; font-size: 14px; color: #555;">
                                 <strong>Medication:</strong> %s<br>
-                                <strong>Missed Doses:</strong> %d<br>
-                                <strong>Last Checked:</strong> %s
+                                <strong>Consecutive Misses:</strong> %d<br>
+                                <strong>Missed Times:</strong> %s<br>
+                                <strong>Date:</strong> %s
                             </p>
                         </div>
                         <p style="font-size: 16px; color: #333;">
@@ -58,14 +70,15 @@ public class AlertService {
                     </div>
                 </div>
                 """.formatted(
-                                contact.getName(),
-                                user.getName(),
-                                missedCount,
-                                medicationName,
-                                medicationName,
-                                missedCount,
-                                LocalDateTime.now().format(DateTimeFormatter.ofPattern("MMM dd, yyyy hh:mm a"))
-                        );
+                    contact.getName(),
+                    user.getName(),
+                    missedCount,
+                    medicationName,
+                    medicationName,
+                    missedCount,
+                    missedTimesStr,
+                    LocalDate.now().format(DateTimeFormatter.ofPattern("MMM dd, yyyy"))
+            );
 
             alertProvider.sendAlert(contact.getEmail(), subject, body);
         }
