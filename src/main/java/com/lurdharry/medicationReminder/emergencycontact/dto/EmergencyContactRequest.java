@@ -14,6 +14,8 @@ public record EmergencyContactRequest(
         String email,
 
         Boolean isPrimary,
+        
+        Integer missedDoseThreshold,
 
         Boolean notifyOnMissedDose
 ) {}
