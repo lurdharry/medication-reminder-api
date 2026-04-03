@@ -30,7 +30,7 @@ spring:
             enable: true
 
 jwt:
-  secret: ${JWT_SECRET:default-secret-for-testing}
+  secret: ${JWT_SECRET}
   expiryTime: 86400000
 
 ai:
