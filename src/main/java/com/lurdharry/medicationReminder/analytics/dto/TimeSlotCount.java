@@ -1,4 +1,10 @@
 package com.lurdharry.medicationReminder.analytics.dto;
 
-public record TimeSlotCount() {
+public interface TimeSlotCount {
+    String getTimeSlot();
+    String getStatus();
+    Long getCount();
 }
+
+
+
