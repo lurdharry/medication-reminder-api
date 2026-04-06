@@ -1,9 +1,10 @@
 package com.lurdharry.medicationReminder.doserecord;
 
+import com.lurdharry.medicationReminder.analytics.dto.DayCount;
+import com.lurdharry.medicationReminder.analytics.dto.TimeSlotCount;
 import com.lurdharry.medicationReminder.doserecord.dto.MedicationStatusCount;
 import com.lurdharry.medicationReminder.doserecord.dto.StatusCount;
 import com.lurdharry.medicationReminder.doserecord.model.DoseRecord;
-import com.lurdharry.medicationReminder.doserecord.model.DoseStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -19,8 +20,6 @@ public interface DoseRecordRepository extends JpaRepository<DoseRecord, UUID> {
     List<DoseRecord> findByUserId(UUID userId);
 
     List<DoseRecord> findByMedicationId(UUID medicationId);
-
-    Long countByMedicationIdAndStatusAndScheduledAtAfter(UUID medicationId, DoseStatus status, LocalDateTime after);
 
 
     @Query("""
@@ -59,5 +58,32 @@ public interface DoseRecordRepository extends JpaRepository<DoseRecord, UUID> {
     Optional<DoseRecord> findByDoseScheduleIdAndScheduledAt(UUID doseScheduleId, LocalDateTime scheduledAt);
 
     List<DoseRecord> findTop5ByMedicationIdOrderByScheduledAtDesc(UUID medicationId);
+
+    @Query(value = """
+    SELECT 
+        CASE 
+            WHEN EXTRACT(HOUR FROM scheduled_at) >= 5 AND EXTRACT(HOUR FROM scheduled_at) < 12 THEN 'morning'
+            WHEN EXTRACT(HOUR FROM scheduled_at) >= 12 AND EXTRACT(HOUR FROM scheduled_at) < 17 THEN 'afternoon'
+            WHEN EXTRACT(HOUR FROM scheduled_at) >= 17 AND EXTRACT(HOUR FROM scheduled_at) < 21 THEN 'evening'
+            ELSE 'night'
+        END as timeSlot,
+        status as status,
+        COUNT(*) as count
+    FROM dose_records
+    WHERE user_id = :userId AND scheduled_at > :since
+    GROUP BY timeSlot, status
+    """, nativeQuery = true)
+    List<TimeSlotCount> countByTimeSlotAndStatus(@Param("userId") UUID userId, @Param("since") LocalDateTime since);
+
+    @Query(value = """
+    SELECT 
+        TRIM(TO_CHAR(scheduled_at, 'Day')) as dayName,
+        status as status,
+        COUNT(*) as count
+    FROM dose_records
+    WHERE user_id = :userId AND scheduled_at > :since
+    GROUP BY dayName, status
+    """, nativeQuery = true)
+    List<DayCount> countByDayAndStatus(@Param("userId") UUID userId, @Param("since") LocalDateTime since);
 
 }
