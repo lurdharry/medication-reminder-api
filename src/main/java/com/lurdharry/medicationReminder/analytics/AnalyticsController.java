@@ -27,4 +27,15 @@ public class AnalyticsController {
         ResponseDTO response = new ResponseDTO(HttpStatus.OK.value(), "Adherence retrieved", res);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
+    @GetMapping("/patterns")
+    public ResponseEntity<ResponseDTO> getPatterns(
+            @AuthenticationPrincipal User user,
+            @RequestParam(defaultValue = "30") int days
+    ) {
+        var res = service.getPatterns(user, days);
+        ResponseDTO response = new ResponseDTO(HttpStatus.OK.value(), "Patterns retrieved", res);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
 }
